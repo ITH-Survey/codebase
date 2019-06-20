@@ -6,10 +6,7 @@ import {
 } from "react-bootstrap";
 // import axios from "axios"
 import { Card } from "../../components/Card/Card.jsx";
-import {Doughnut} from 'react-chartjs-2';
 import {Pie, Bar, Radar} from 'react-chartjs-2';
-
-import DetailedExpansionPanel from '../../components/qutions/Expansion';
 
 import { UserGraphsCount } from "../../services/graphService";
 
@@ -27,18 +24,6 @@ import withReactContent from 'sweetalert2-react-content'
 
 
 const MySwal = withReactContent(Swal)
-
-const pxToMm = (px) => {
-  return Math.floor(px/document.getElementById('content').offsetHeight);
-};
-
-const mmToPx = (mm) => {
-  return document.getElementById('content').offsetHeight*mm;
-};
-
-const range = (start, end) => {
-  return Array(end-start).join(0).split(0).map(function(val, id) {return id+start});
-};
 
 const options = {
     responsive: true,
@@ -260,15 +245,6 @@ class GraphsDisplay extends Component {
           ] },
   }
 
-  // async APICall(key){
-  //   const users = JSON.parse(sessionStorage.getItem("userDetails"))
-  //   const datas = await UserGraphsCount(
-  //     key,
-  //     sessionStorage.getItem('survey'),
-  //     sessionStorage.getItem('company'),
-  //     '' + users.userid
-  //   );
-  // }
 
   async componentDidMount() {
 
@@ -283,26 +259,6 @@ class GraphsDisplay extends Component {
           MySwal.showLoading()
     }
   })
-
-    // const val = this.state.graphType.map( key => {
-    //   return this.APICall(key)
-    // })
-
-    // console.log(val)
-
-    // const piedatas = await UserGraphsCount('Pie',sessionStorage.getItem('survey'),sessionStorage.getItem('company'),"588");
-    // let bardatas = await UserGraphsCount('Bar',sessionStorage.getItem('survey'),sessionStorage.getItem('company'),"588");
-    // let radardatas = await UserGraphsCount('Radar',sessionStorage.getItem('survey'),sessionStorage.getItem('company'),"588");
-    // let radarsingledatas = await UserGraphsCount('RadarBySector',sessionStorage.getItem('survey'),sessionStorage.getItem('company'),"588");
-    // let radaralldatas = await UserGraphsCount('RadarAllSectors',sessionStorage.getItem('survey'),sessionStorage.getItem('company'),"588");
-
-    // const state = this.state
-
-    // console.log(state.PieDatas)
-
-    
-    // const datas = [...Object.values(this.state.check)]
-    // const label = [...Object.keys(this.state.check)]
 
     const Pie = await UserGraphsCount(
       "Pie",
@@ -387,8 +343,6 @@ class GraphsDisplay extends Component {
       return null;
       // console.log(val, st[val], key1,st[val].datasets[0].label)
     })
-    // radar["labels"] = Sector.data.category
-    // datasets[0]["data"] = Sector.data.scores
     this.setState({  
       piedata: st.piedata, 
       radar: st.radar, 
@@ -406,36 +360,16 @@ class GraphsDisplay extends Component {
   printDocument = () => {
 
     const input = document.getElementById('new');
-    const inputHeightMm = pxToMm(input.offsetHeight);
-      const a4WidthMm = 210;
-      const a4HeightMm = 297; 
-      const a4HeightPx = mmToPx(a4HeightMm); 
-      const numPages = inputHeightMm <= a4HeightMm ? 1 : Math.floor(inputHeightMm/a4HeightMm) + 1;
 
-      console.log({
-        input, inputHeightMm, a4HeightMm, a4HeightPx, numPages, range: range(0, numPages), 
-        comp: inputHeightMm <= a4HeightMm, inputHeightPx: input.offsetHeight
-      });
-      
     html2canvas(input)
       .then((canvas) => {
         const imgData = canvas.toDataURL('image/png');
-        let pdf
-
-        // if (inputHeightMm > a4HeightMm) {
-          // elongated a4 (system print dialog will handle page breaks)
-          console.log(inputHeightMm+16, a4WidthMm, "CCCCCCCCC", 754380)
-          pdf = new jsPDF('p', 'mm', [789,1800]);
-        // } else {
-        //   // standard a4
-          // pdf = new jsPDF();
-        // }
-
-
-        // const pdf = new jsPDF();
-        pdf.addImage(imgData, 'PNG', 0, 0);
-        // pdf.output('dataurlnewwindow');
-        pdf.save("reports.pdf");
+        const pdf = new jsPDF('p','mm',[canvas.width,canvas.height], 'true');
+        const imgProps= pdf.getImageProperties(imgData);
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight,'','FAST');
+        pdf.save('download.pdf');
       })
     ;
   }
@@ -492,9 +426,10 @@ class GraphsDisplay extends Component {
             </Col>
             ))}
           </Row>
-          <Button variant="raised" style={{float : "left"}} onClick={this.printDocument} className="Newbutton">Download Report</Button>
         </Grid>
         </div>
+        <Button variant="raised" style={{float : "left"}} onClick={this.printDocument} className="Newbutton">Download Report</Button>
+        <br/>
       </div>
     );
   }

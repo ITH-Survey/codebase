@@ -693,3 +693,12 @@ def getAllSurvey(email, company):
             elif val['email'] == email:
                 output.append(value['survey'])
     return dumps(output)
+
+def getnoofsurveys(survey,company):
+
+    db, _ = mongoConnect("localhost", "Surveyapp", "userdetails", "user", "pwd")
+    doc = db.find({'company': company, 'survey': survey }, {'users':1,  '_id' : 0})
+    for i in doc:
+      x=i['users']
+      count=str(len(x))
+    return count

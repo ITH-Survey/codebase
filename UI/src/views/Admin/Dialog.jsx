@@ -116,27 +116,20 @@ const range = (start, end) => {
 
 const printDocument = () => {
 
-  const input = document.getElementById('content');
-  // const inputHeightMm = pxToMm(input.offsetHeight);
-  //   const a4WidthMm = 210;
-  //   const a4HeightMm = 297; 
-  //   const a4HeightPx = mmToPx(a4HeightMm); 
-  //   const numPages = inputHeightMm <= a4HeightMm ? 1 : Math.floor(inputHeightMm/a4HeightMm) + 1;
 
-  //   console.log({
-  //     input, inputHeightMm, a4HeightMm, a4HeightPx, numPages, range: range(0, numPages), 
-  //     comp: inputHeightMm <= a4HeightMm, inputHeightPx: input.offsetHeight
-  //   });
-    
-  html2canvas(input)
-    .then((canvas) => {
-      const imgData = canvas.toDataURL('image/png');
-      let pdf
-        pdf = new jsPDF('p', 'mm', [900,1980]);
-      pdf.addImage(imgData, 'PNG', 0, 0);
-      pdf.save("reports.pdf");
-    })
-  ;
+    const input = document.getElementById('content');
+
+    html2canvas(input)
+      .then((canvas) => {
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF('p','mm',[canvas.width,canvas.height], 'true');
+        const imgProps= pdf.getImageProperties(imgData);
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight,'','FAST');
+        pdf.save('download.pdf');
+      })
+    ;
 }
 
 const AlertDialogSlide = (props) => {
@@ -213,9 +206,10 @@ const AlertDialogSlide = (props) => {
             </Col>
             ))}
           </Row>
-          <Button variant="raised" style={{float : "left"}} onClick={printDocument} className="Newbutton">Download Report</Button>
-        </Grid>
+          </Grid>
         </div>
+        <Button variant="raised" style={{float : "left"}} onClick={printDocument} className="Newbutton">Download Report</Button>
+        
           </DialogContent>
           <DialogActions>
             <Button onClick={props.handleClose} color="primary">

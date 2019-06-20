@@ -258,7 +258,7 @@ def genRadar(labels,values,clr,sector):
     # # # Fill area
     ax.fill(angles, values, color=clr, alpha=1)
     # Add a title
-    plt.title('{} metrics radar display'.format(sector), size=11, color='k', y=1.1)
+    #plt.title('{} metrics radar display'.format(sector), size=11, color='k', y=1.1)
 
     file='Report_{}_{}.png'.format(sector,bl.getTimeStamp())
     plt.savefig(file, bbox_inches = "tight")
@@ -274,8 +274,8 @@ def barh(labels,values):
     df.loc[(df['values']>=3) & (df['values']<4), 'color' ]='green'
     df.loc[(df['values']>=2) & (df['values']<3), 'color' ]='purple'
     df.loc[df['values']<2,'color']='red'
-    df['label']=df['labels']+'('+df['values'].astype(str)+')'
-    df=df.set_index('label')
+    df['Metrics']=df['labels']+'('+df['values'].astype(str)+')'
+    df=df.set_index('Metrics')
 
     fig = plt.figure(figsize=(14,16))
 

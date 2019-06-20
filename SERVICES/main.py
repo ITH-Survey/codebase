@@ -1037,9 +1037,10 @@ def genReport():
     s9.add_picture(R3_bar, width=Inches(5))
     s10 = doc.new_subdoc()
     s10.add_picture(R4_bar, width=Inches(5))
-
-
-    context = { 'bar1' : s7,'bar2' : s8,'bar3' : s9,'bar4' : s10,'chart5' : s6, 'radar1' : s1,'radar2' : s2,'radar3' : s3,'radar4' : s4,'complete' : s5, 'company': company, 'survey': survey, 'date': curdate, 'number': '50'  }
+    req = requests.get("http://localhost/surveysCount?survey={}&company={}".format(survey,company))
+    count=req.text
+    
+    context = { 'bar1' : s7,'bar2' : s8,'bar3' : s9,'bar4' : s10,'chart5' : s6, 'radar1' : s1,'radar2' : s2,'radar3' : s3,'radar4' : s4,'complete' : s5, 'company': company, 'survey': survey, 'date': curdate, 'number': count  }
     doc.render(context)
     filename="Survey_Metrics_{}.docx".format(bl.getTimeStamp())
     doc.save(filename)
@@ -1119,6 +1120,13 @@ def getAllSurvey():
     email = request.args.get('email')
     company = request.args.get('company')
     return bl.getAllSurvey(email, company)
+
+
+@app.route('/surveysCount', methods=['GET', 'POST'])
+def surveysCount():
+    survey = request.args.get('survey')
+    company = request.args.get('company')
+    return bl.getnoofsurveys(survey, company)
 
 
 if __name__ == '__main__':
