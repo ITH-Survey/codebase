@@ -42,14 +42,14 @@ app = Flask(__name__)
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 cors = CORS(app)
 
-@app.route('/')
+@app.route('/backend')
 def login():
 
 
     return "<u><b>Login Page</u></b>"
 ## Redirect to login page
 
-@app.route('/questionsUpload', methods=['GET','POST'])
+@app.route('/backend/questionsUpload', methods=['GET','POST'])
 def questionsUpload():
     survey = request.args.get('survey')
     company = request.args.get('company')
@@ -131,7 +131,7 @@ def questionsUpload():
 
     return 'Upload Done -- replace this with web page'
 
-@app.route('/usersUpload', methods=['GET','POST'])
+@app.route('/backend/usersUpload', methods=['GET','POST'])
 def usersUpload():
     survey = request.args.get('survey')
     company = request.args.get('company')
@@ -171,20 +171,20 @@ def usersUpload():
 
     return 'Upload Done -- replace this with web page'
 
-@app.route('/companyNames', methods=['GET', 'POST'])
+@app.route('/backend/companyNames', methods=['GET', 'POST'])
 def companyNames():
     companies_list = list(bl.getcompanynames())
     print(companies_list)
     return json.dumps(companies_list)
 
-@app.route('/companySurveyNames', methods=['GET', 'POST'])
+@app.route('/backend/companySurveyNames', methods=['GET', 'POST'])
 def companySurveyNames():
     company = request.args.get('company')
     #company = "company3"
     companysurveynames=list(bl.getcompanysurveynames(company))
     return json.dumps(companysurveynames)
 	
-@app.route('/questionCount', methods=['GET', 'POST'])
+@app.route('/backend/questionCount', methods=['GET', 'POST'])
 def questionCount():
     company = request.args.get('company')
     survey = request.args.get('survey')
@@ -193,7 +193,7 @@ def questionCount():
     print(count)
     return json.dumps(count)
 
-@app.route('/autoSavedResponse', methods=['GET', 'POST'])
+@app.route('/backend/autoSavedResponse', methods=['GET', 'POST'])
 def autoSavedResponse():
     company = request.args.get('company')
     survey = request.args.get('survey')
@@ -203,7 +203,7 @@ def autoSavedResponse():
     print(count)
     return json.dumps(count)
 
-@app.route('/departmentNames', methods=['GET', 'POST'])
+@app.route('/backend/departmentNames', methods=['GET', 'POST'])
 def departmentNames():
     company = request.args.get('company')
     survey = request.args.get('survey')
@@ -212,11 +212,12 @@ def departmentNames():
     departmentnames=list(bl.getdepartmentnames(company, survey))
     return json.dumps(departmentnames)
 
-@app.route('/releaseSurvey', methods=['GET', 'POST'])
+@app.route('/backend/releaseSurvey', methods=['GET', 'POST'])
 def releaseSurvey():
     survey = request.args.get('survey')
     company = request.args.get('company')
     department = request.args.get('department')
+    host = request.args.get('host')
     #url = request.args.get('url')
 
     #survey = "survey"
@@ -226,10 +227,10 @@ def releaseSurvey():
     #mail_list=["vigneshsubramani28@gmail.com"]
     mail_list=list(bl.getMails(survey,company,department))
     print(mail_list)
-    sendmail(survey,company,mail_list)
+    sendmail(survey,company,mail_list,host)
     return 'sent email'
 
-@app.route('/surveyQuestions', methods=['GET', 'POST'])
+@app.route('/backend/surveyQuestions', methods=['GET', 'POST'])
 def surveyQuestions():
     survey = request.args.get('survey')
     company = request.args.get('company')
@@ -241,7 +242,7 @@ def surveyQuestions():
     return json.dumps(questions, default=json_util.default)
 
 
-@app.route('/categories', methods=['GET', 'POST'])
+@app.route('/backend/categories', methods=['GET', 'POST'])
 def categories():
     survey = request.args.get('survey')
     company = request.args.get('company')
@@ -257,7 +258,7 @@ def categories():
 
 
 
-@app.route('/getAllPie', methods=['GET'])
+@app.route('/backend/getAllPie', methods=['GET'])
 def getAllPie():
 
     dataframe = request.args.get('dataframe')
@@ -266,7 +267,7 @@ def getAllPie():
     return data
 
 
-@app.route('/getAllBar', methods=['GET'])
+@app.route('/backend/getAllBar', methods=['GET'])
 def getAllBar():
 
     dataframe = request.args.get('dataframe')
@@ -274,17 +275,18 @@ def getAllBar():
     data=cl.bar(df)
     return data
 
-@app.route('/validation', methods=['GET', 'POST'])
+@app.route('/backend/validation', methods=['GET', 'POST'])
 def validation():
     survey = request.args.get('survey')
     company = request.args.get('company')
     email = request.args.get('email')
+    host = request.args.get('host')
     #survey = "survey"
     #company = "company"
     #email = "pranushajanapaa@gmail.com"
-    return bl.validate(survey,company,email)
+    return bl.validate(survey,company,email, host)
 
-@app.route('/Registration', methods=['GET', 'POST'])
+@app.route('/backend/Registration', methods=['GET', 'POST'])
 def Registration():
     survey = request.args.get('survey')
     company = request.args.get('company')
@@ -293,25 +295,25 @@ def Registration():
     password =  request.args.get('password')
     return bl.register(survey,company,email,username,password)
 
-@app.route('/getAllRadar', methods=['GET'])
+@app.route('/backend/getAllRadar', methods=['GET'])
 def getAllRadar():
     dataframe = request.args.get('dataframe')
     df=pd.read_excel(dataframe)
     data=cl.radar(df)
     return data
 
-@app.route('/userResponse', methods=['GET', 'POST'])
+@app.route('/backend/userResponse', methods=['GET', 'POST'])
 def userResponse():
     data = request.get_json()
     return bl.userResponseload(data, sectors, subsectors)
 
-@app.route('/saveResponse', methods=['GET', 'POST'])
+@app.route('/backend/saveResponse', methods=['GET', 'POST'])
 def saveResponse():
     data = request.get_json()
     return bl.saveUserResponse(data)
 
 
-@app.route('/getAllRadarBySector', methods=['GET'])
+@app.route('/backend/getAllRadarBySector', methods=['GET'])
 def getAllRadarBySector():
 
     dataframe = request.args.get('dataframe')
@@ -320,13 +322,13 @@ def getAllRadarBySector():
     return data
 
 
-@app.route('/getSingleRadarAllSectors', methods=['GET'])
+@app.route('/backend/getSingleRadarAllSectors', methods=['GET'])
 def getSingleRadarAllSectors():
 
     survey = request.args.get('survey')
     company = request.args.get('company')
     userid= request.args.get('userid')
-    r = requests.get("http://localhost/chartsOne?survey={}&company={}&userid={}".format(survey,company,userid))
+    r = requests.get("http://localhost/backend/chartsOne?survey={}&company={}&userid={}".format(survey,company,userid))
     jsonres=r.json()
     df=pd.DataFrame(jsonres)
     df=df.sort_values(['sector','cid','subsector'])
@@ -336,7 +338,7 @@ def getSingleRadarAllSectors():
 
 
 
-@app.route('/upload', methods=['GET', 'POST'])
+@app.route('/backend/upload', methods=['GET', 'POST'])
 def upload():
     folder_name = request.form['superhero']
     '''
@@ -369,7 +371,7 @@ def upload():
 ############################################################################################################################################
 ############################################################################################################################################
 
-@app.route('/chartsAll', methods=['GET'])
+@app.route('/backend/chartsAll', methods=['GET'])
 def chartsAll():
     import time
     import xlwt
@@ -503,7 +505,7 @@ def chartsAll():
 
 
 
-@app.route('/chartsOne', methods=['GET'])
+@app.route('/backend/chartsOne', methods=['GET'])
 def chartsOne():
 
     survey = request.args.get('survey')
@@ -627,7 +629,7 @@ def chartsOne():
 ############################################################################################################################################
 
 
-@app.route('/chartsByDept', methods=['GET'])
+@app.route('/backend/chartsByDept', methods=['GET'])
 def chartsByDept():
     import time
     import xlwt
@@ -761,15 +763,15 @@ def chartsByDept():
 ############################################################################################################################################
 
 
-@app.route('/getSinglePie', methods=['GET'])
+@app.route('/backend/getSinglePie', methods=['GET'])
 def getSinglePie():
 
     survey = request.args.get('survey')
     company = request.args.get('company')
     userid= request.args.get('userid')
     print(survey,company,userid)
-    #r = requests.get("http://localhost/chartsOne?survey='Quarter%201'&company='ITH'&userid='588'")
-    r = requests.get("http://localhost/chartsOne?survey={}&company={}&userid={}".format(survey,company,userid))
+    #r = requests.get("http://localhost/backend/chartsOne?survey='Quarter%201'&company='ITH'&userid='588'")
+    r = requests.get("http://localhost/backend/chartsOne?survey={}&company={}&userid={}".format(survey,company,userid))
 
 
     jsonres=r.json()
@@ -778,32 +780,32 @@ def getSinglePie():
     data=cl.pie(df)
     return data
 
-@app.route('/getTable', methods=['GET'])
+@app.route('/backend/getTable', methods=['GET'])
 def getTable():
     survey = request.args.get('survey')
     company = request.args.get('company')
     userid= request.args.get('userid')
-    r = requests.get("http://localhost/chartsOne?survey={}&company={}&userid={}".format(survey,company,userid))
+    r = requests.get("http://localhost/backend/chartsOne?survey={}&company={}&userid={}".format(survey,company,userid))
     jsonres=r.json()
     df=pd.DataFrame(jsonres)
     data=cl.getTable(df,sectors,subsectors)
     return data
 
-@app.route('/getSingleBar', methods=['GET'])
+@app.route('/backend/getSingleBar', methods=['GET'])
 def getSingleBar():
 
     survey = request.args.get('survey')
     company = request.args.get('company')
     userid= request.args.get('userid')
 
-    r = requests.get("http://localhost/chartsOne?survey={}&company={}&userid={}".format(survey,company,userid))
+    r = requests.get("http://localhost/backend/chartsOne?survey={}&company={}&userid={}".format(survey,company,userid))
     jsonres=r.json()
     df=pd.DataFrame(jsonres)
 
     data=cl.bar(df)
     return data
 
-@app.route('/getAllRadarAllSectors', methods=['GET'])
+@app.route('/backend/getAllRadarAllSectors', methods=['GET'])
 def getAllRadarAllSectors():
 
     dataframe = request.args.get('dataframe')
@@ -812,14 +814,14 @@ def getAllRadarAllSectors():
     return data
 
 
-@app.route('/getSingleRadar', methods=['GET'])
+@app.route('/backend/getSingleRadar', methods=['GET'])
 def getSingleRadar():
 
     survey = request.args.get('survey')
     company = request.args.get('company')
     userid= request.args.get('userid')
 
-    r = requests.get("http://localhost/chartsOne?survey={}&company={}&userid={}".format(survey,company,userid))
+    r = requests.get("http://localhost/backend/chartsOne?survey={}&company={}&userid={}".format(survey,company,userid))
     jsonres=r.json()
     df=pd.DataFrame(jsonres)
 
@@ -829,7 +831,7 @@ def getSingleRadar():
 
 
 
-@app.route('/getSingleRadarBySector', methods=['GET'])
+@app.route('/backend/getSingleRadarBySector', methods=['GET'])
 def getSingleRadarBySector():
 
     survey = request.args.get('survey')
@@ -837,7 +839,7 @@ def getSingleRadarBySector():
     userid= request.args.get('userid')
 #    sector= request.args.get('sector')
 
-    r = requests.get("http://localhost/chartsOne?survey={}&company={}&userid={}".format(survey,company,userid))
+    r = requests.get("http://localhost/backend/chartsOne?survey={}&company={}&userid={}".format(survey,company,userid))
     jsonres=r.json()
     df=pd.DataFrame(jsonres)
 
@@ -845,13 +847,13 @@ def getSingleRadarBySector():
     return data
 
 
-@app.route('/getSingleTable', methods=['GET'])
+@app.route('/backend/getSingleTable', methods=['GET'])
 def getSingleTable():
 
     survey = request.args.get('survey')
     company = request.args.get('company')
     userid= request.args.get('userid')
-    r = requests.get("http://localhost/chartsOne?survey={}&company={}&userid={}".format(survey,company,userid))
+    r = requests.get("http://localhost/backend/chartsOne?survey={}&company={}&userid={}".format(survey,company,userid))
     jsonres=r.json()
     df=pd.DataFrame(jsonres)
     df=df.sort_values(['sector','cid','subsector'])
@@ -860,7 +862,7 @@ def getSingleTable():
     return data
 
 
-@app.route('/userlogin', methods=['GET', 'POST'])
+@app.route('/backend/userlogin', methods=['GET', 'POST'])
 def userlogin():
     data = request.get_json()
     jsonFile = './sessionTemplate.json'
@@ -869,7 +871,7 @@ def userlogin():
     return json.dumps(check)
 
 
-def sendmail(survey,company,mails):
+def sendmail(survey,company,mails, host):
     to = mails
 
     gmail_user = 'perugubharathkumar@gmail.com'
@@ -879,6 +881,7 @@ def sendmail(survey,company,mails):
     smtpserver.starttls()
     smtpserver.ehlo
     smtpserver.login(gmail_user,gmail_pwd)
+    hostname = host
     comp=company
     surv=survey
     if ' ' in company:
@@ -896,7 +899,7 @@ def sendmail(survey,company,mails):
                    "\n" \
                    "\n" \
                    "you have been picked for taking the survey by {} and the link is a follows below.\n"\
-                   "http://ec2-13-234-154-202.ap-south-1.compute.amazonaws.com/validation?company={}&survey={}&email={}".format(comp,comp, surv, mail)
+                   "https://{}/backend/validation?company={}&survey={}&email={}&host={}".format(comp,hostname,comp, surv, mail, hostname)
         msg = 'Subject: {}\n\n{}'.format(subject,text)
         smtpserver.sendmail(gmail_user, mail, msg)
 
@@ -906,7 +909,7 @@ def sendmail(survey,company,mails):
 
 
 
-@app.route('/getUsers', methods=['GET'])
+@app.route('/backend/getUsers', methods=['GET'])
 def getUsers():
 
     company=request.args.get('company')
@@ -916,7 +919,7 @@ def getUsers():
     return json.dumps(data)
 
 
-@app.route('/getUserId', methods=['GET'])
+@app.route('/backend/getUserId', methods=['GET'])
 def getUserId():
 
     company=request.args.get('company')
@@ -930,14 +933,14 @@ def getUserId():
 
     return id
 
-@app.route('/questionsCount', methods=['GET'])
+@app.route('/backend/questionsCount', methods=['GET'])
 def questionsCount():
     company=request.args.get('company')
     survey=request.args.get('survey')
     count = bl.getquestioncount(company, survey, sectors, subsectors)
     return json.dumps(count, default=json_util.default)
 
-@app.route('/genReport', methods=['GET'])
+@app.route('/backend/genReport', methods=['GET'])
 def genReport():
 
     survey = request.args.get('survey')
@@ -947,11 +950,11 @@ def genReport():
     host,base,colection,dbuser,pwd=bl.mongoInit('users')
     #file='C:\\toHDD\\toViggu\\surveyapp_python\\dataframe_1555184982.xlsx'
 
-    req = requests.get("http://localhost/chartsAll?survey={}&company={}".format(survey,company))
+    req = requests.get("http://localhost/backend/chartsAll?survey={}&company={}".format(survey,company))
     print(req.text)
     file=req.text
 
-    r = requests.get("http://localhost/getAllRadar?dataframe={}".format(file))
+    r = requests.get("http://localhost/backend/getAllRadar?dataframe={}".format(file))
     jsonres=r.json()
     subscores=[]
     subscores.append(jsonres['Physical'][0])
@@ -969,7 +972,7 @@ def genReport():
 
     R0=cl.genFullRadar(sectors,subsectors,subscores)
 
-    r = requests.get("http://localhost/getAllRadarBySector?dataframe={}".format(file))
+    r = requests.get("http://localhost/backend/getAllRadarBySector?dataframe={}".format(file))
     jsonres=r.json()
 
     R1_labels=jsonres[0]['labels']
@@ -986,7 +989,7 @@ def genReport():
     R3=cl.genRadar(R3_labels,R3_values,'#99ff99','Resourcefulness')
     R4=cl.genRadar(R4_labels,R4_values,'#66b3ff','Rapidity')
 
-    r = requests.get("http://localhost/getAllRadarAllSectors?dataframe={}".format(file))
+    r = requests.get("http://localhost/backend/getAllRadarAllSectors?dataframe={}".format(file))
     jsonres=r.json()
     labels=jsonres['category']
     values=jsonres['scores']
@@ -995,7 +998,7 @@ def genReport():
     values=pd.Series(values)
     R5=cl.barh(labels,values)
 
-    r = requests.get("http://localhost/getAllRadar?dataframe={}".format(file))
+    r = requests.get("http://localhost/backend/getAllRadar?dataframe={}".format(file))
     jsonres=r.json()
 
     phy=jsonres['Physical']
@@ -1037,7 +1040,7 @@ def genReport():
     s9.add_picture(R3_bar, width=Inches(5))
     s10 = doc.new_subdoc()
     s10.add_picture(R4_bar, width=Inches(5))
-    req = requests.get("http://localhost/surveysCount?survey={}&company={}".format(survey,company))
+    req = requests.get("http://localhost/backend/surveysCount?survey={}&company={}".format(survey,company))
     count=req.text
     
     context = { 'bar1' : s7,'bar2' : s8,'bar3' : s9,'bar4' : s10,'chart5' : s6, 'radar1' : s1,'radar2' : s2,'radar3' : s3,'radar4' : s4,'complete' : s5, 'company': company, 'survey': survey, 'date': curdate, 'number': count  }
@@ -1050,7 +1053,7 @@ def genReport():
     bl.sendReport(survey,company,outputFile)
     return "Sent Report"
 
-@app.route('/userDepartmentNames', methods=['GET', 'POST'])
+@app.route('/backend/userDepartmentNames', methods=['GET', 'POST'])
 def userDepartmentNames():
     company = request.args.get('company')
     survey = request.args.get('survey')
@@ -1059,20 +1062,20 @@ def userDepartmentNames():
     departmentnames=list(bl.getuserdepartmentnames(company, survey))
     return json.dumps(departmentnames)
 
-@app.route('/userCompanyNames', methods=['GET', 'POST'])
+@app.route('/backend/userCompanyNames', methods=['GET', 'POST'])
 def userCompanyNames():
     companies_list = list(bl.getusercompanynames())
     print(companies_list)
     return json.dumps(companies_list)
 
-@app.route('/userCompanySurveyNames', methods=['GET', 'POST'])
+@app.route('/backend/userCompanySurveyNames', methods=['GET', 'POST'])
 def userCompanySurveyNames():
     company = request.args.get('company')
     #company = "company3"
     companysurveynames=list(bl.getusercompanysurveynames(company))
     return json.dumps(companysurveynames)
 
-@app.route('/generateOTP', methods=['GET', 'POST'])
+@app.route('/backend/generateOTP', methods=['GET', 'POST'])
 def generateOTP():
     email = request.args.get('email')
     company = request.args.get('company')
@@ -1103,7 +1106,7 @@ def  mail(company,email,otp):
                "Please provide the same at password reset page and proceed further".format(otp)
     mail.send(msg)
 
-@app.route('/passwordReset', methods=['GET', 'POST'])
+@app.route('/backend/passwordReset', methods=['GET', 'POST'])
 def passwordReset():
     email = request.args.get('email')
     company = request.args.get('company')
@@ -1115,14 +1118,19 @@ def passwordReset():
     #forgotphrase = "3944"
     return bl.resetpassword(email,company,password,forgotphrase)
 
-@app.route('/getAllSurveybyUser', methods=['GET', 'POST'])
-def getAllSurvey():
+@app.route('/backend/getAllSurveybyUser', methods=['GET', 'POST'])
+def getAllSurveybyUser():
     email = request.args.get('email')
     company = request.args.get('company')
     return bl.getAllSurvey(email, company)
 
+@app.route('/backend/encrypt', methods=['GET','POST'])
+def encrypt():
+    plain_text = request.args.get('str')
+    en_de = request.args.get('enc')
+    return bl.en_de_crypt(plain_text, en_de)  
 
-@app.route('/surveysCount', methods=['GET', 'POST'])
+@app.route('/backend/surveysCount', methods=['GET', 'POST'])
 def surveysCount():
     survey = request.args.get('survey')
     company = request.args.get('company')

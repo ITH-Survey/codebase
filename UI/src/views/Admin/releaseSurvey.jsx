@@ -58,7 +58,7 @@ class ReleseSurvey extends Component {
     let status = 400
     if(this.state.data.surveyName !== undefined && this.state.data.companyName !== undefined && this.state.data.departmentName !== undefined){
     await axios
-    .post(`${IP}/releaseSurvey?survey=${this.state.data.surveyName}&company=${this.state.data.companyName}&department=${this.state.data.departmentName}&url=test`)
+    .post(`${IP}/releaseSurvey?survey=${this.state.data.surveyName}&company=${this.state.data.companyName}&department=${this.state.data.departmentName}&host=${window.location.hostname}`)
     .then(res => {
         status = res.status
       }

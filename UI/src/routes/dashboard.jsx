@@ -14,6 +14,7 @@ import UserProfile from "../views/UserProfile/UserProfile";
 // import UserRegistraion from "../components/userComponent/userRegistration";
 import SurveyList from "../components/userComponent/surveyList";
 import GraphsDisplay from "../views/Admin/graphs";
+import References from "../components/userComponent/referenceTable";
 
 const dashboardRoutes = [
   {
@@ -39,6 +40,12 @@ const dashboardRoutes = [
     name: "Survey Graph",
     icon: "pe-7s-note2",
     component: GraphsDisplay
+  },
+  {
+    path: "/users/references",
+    name: "REFERENCES",
+    icon: "pe-7s-note2",
+    component: References
   }
   // {
   //   path: "/uservalidate",

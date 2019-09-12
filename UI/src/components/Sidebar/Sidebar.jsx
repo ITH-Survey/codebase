@@ -62,7 +62,7 @@ class Sidebar extends Component {
                     key={key}
                   >
                     
-                      { prop.name !== 'Take Survey' ? null : 
+                      { prop.name !== 'Take Survey' && prop.name !== 'REFERENCES'? null : 
                       <NavLink
                       to={prop.path}
                       className="nav-link"

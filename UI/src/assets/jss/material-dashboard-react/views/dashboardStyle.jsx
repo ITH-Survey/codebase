@@ -79,6 +79,22 @@ const dashboardStyle = {
   },
   grow: {
     flexGrow: 1,
+    // border: '0.1px solid black',
+  },
+  lgrow: {
+    flexGrow: 1,
+    // borderRight: '2px solid #af2cc5',
+  },
+  cgrow: {
+    flexGrow: 1,
+    // border: '2px solid #af2cc5',
+    borderRight: '2px solid #af2cc5',
+    borderLeft: '2px solid #af2cc5',
+    // border: '2px solid #af2cc5',
+  },
+  rgrow: {
+    flexGrow: 1,
+    // borderLeft: '2px solid #af2cc5',
   },
   menuButton: {
     marginLeft: 12,

@@ -13,7 +13,7 @@ export function userdataupload(Survey_name, company_name) {
 }
 export function releaseSurvey(Survey_name, company_name,department_name,url_name) {
   
-  const url = ` ${IP}/releaseSurvey?survey=${Survey_name}&company=${company_name}&department=${department_name}&url=${url_name}`;
+  const url = `${IP}/releaseSurvey?survey=${Survey_name}&company=${company_name}&department=${department_name}&host=${url_name}`;
   return http.post(url, { Survey_name, company_name });
 }
 export function companynames() {

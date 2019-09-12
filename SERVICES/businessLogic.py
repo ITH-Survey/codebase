@@ -12,6 +12,8 @@ from email.mime.base import MIMEBase
 from email import encoders
 from random import choice
 import string
+from cryptography.fernet import Fernet
+import config as cf
 
 # access row by row and update the json file
 def parseDF(df_R1,df_R2,df_R3,df_R4,jsonFile,survey,company):
@@ -243,11 +245,16 @@ def getcompanynames():
 def getcompanysurveynames(company):
     col, _= mongoConnect("localhost", "Surveyapp", "userdetails", "user", "pwd")
     surveys = []
-    json_response = list(col.find())
+
+    json_response = list(col.find({"company": company}))
     for i in json_response:
-        for _, value in i.items():
-            if value == company and value not in surveys:
-                surveys.append(i['survey'])
+      #print(i.values())
+      for key,value in i.items():
+        #print(key,"    ",value)
+        surveys.append(i['survey'])
+    lt=set(surveys)
+    surveys=list(lt)
+    print(surveys)
     return surveys
 
 def getdepartmentnames(company,survey):
@@ -312,13 +319,14 @@ def getcategory(survey,company,sector,subsector):
     return cname_list
 
 
-def validate(survey,company,email):
+def validate(survey,company,email, host):
     col, db = mongoConnect("localhost", "Surveyapp", "userdetails", "user", "pwd")
     col1, _ = mongoConnect("localhost", "Surveyapp", "login", "user", "pwd")
     # doc = list(col.find({"company": company, "survey": survey}, {"users": 0}))
     # id = ""
     msg = ""
     pwd = ""
+    en_password = ""
     flag = False
     # for i in doc:
     #     id = i['_id']
@@ -344,9 +352,9 @@ def validate(survey,company,email):
                     # return render_template('validatedscreen.html',company=company, survey=survey)
                     # msg = "done"
     if pd != "":
-        return render_template('validatedscreen.html',company=company, survey=survey, email=email)
+        return render_template('validatedscreen.html',company=company, survey=survey, email=email, host=host)
     elif pd == "":
-        return render_template('validatescreen.html', company=company, survey=survey, email=email)
+        return render_template('validatescreen.html', company=company, survey=survey, email=email, host=host)
     else:
         return "not a valid user to take survey"
 
@@ -394,8 +402,9 @@ def register(survey,company,email,username,password):
             for val in value:
                 if val['email'] == email:
                     if val['password'] == "":
-                        response = col.update({"company": company, "users.email": email}, {"$set": {"users.$.password": password, "users.$.username": username}} , multi=True)
-                        response1 = col1.update({"_id": id1, "users.email": email}, {"$set": {"users.$.password": password}})
+                        en_pwd = en_de_crypt(password, "encrypt")
+                        response = col.update({"company": company, "users.email": email}, {"$set": {"users.$.password": en_pwd, "users.$.username": username}} , multi=True)
+                        response1 = col1.update({"_id": id1, "users.email": email}, {"$set": {"users.$.password": en_pwd}})
 
                         msg = "new user"
                         return json.dumps({"status": '200', "message": "Registration is completed"})
@@ -472,16 +481,27 @@ def saveUserResponse(data):
 def userLogin(data, jsonFile):
     col, _ = mongoConnect("localhost", "Surveyapp", "userdetails", "user", "pwd")
     print(data['email'])
-    print(data['password'])
+    print(data['password'])   ## admin
+    prompt_pwd=data['password']
+    
+    #en_pwd = en_de_crypt(prompt_pwd, "decrypt")
+    
     with open(jsonFile) as json_data:
         js = json.load(json_data)
-    jsonresponse = col.find({"users.email": data['email'], "users.password":data["password"]}, {"_id": 0})
+    jsonresponse = col.find({"users.email": data['email']}, {"_id": 0})
     survey = ""
     company = ""
+    
     for i in jsonresponse:
         for value in i["users"]:
-            if value["password"] == data["password"] and value["email"] == data["email"] :
+         #print(i)
+         if value['email'] == data['email']:
+          print("Insdide 1", value["password"] )
+          pwd = en_de_crypt(value["password"], "decrypt")
+          if pwd == prompt_pwd and value["email"] == data["email"] :
+               # print("came into the if condition")
                 if value["role"] == "Admin" or value["isValid"] == "True" :
+                    #print("came into the 2nd if condition")
                     company = (i['company'])
                     survey = (i['survey'])
     js["survey"] = survey
@@ -490,7 +510,9 @@ def userLogin(data, jsonFile):
     for j in jsonresponses:
         for _, l in j.items():
             for m in l:
-                if m['email'] == data['email'] and m['password'] == data['password']:
+              if m['email'] == data['email']:
+                mpwd = en_de_crypt(m["password"], "decrypt")
+                if m['email'] == data['email'] and mpwd == prompt_pwd:
                     js["users"].append(m)
                     if m['role'] == "Admin":
                         js["isAdmin"] = "true"
@@ -672,8 +694,9 @@ def resetpassword(email,company,password,forgotphrase):
             for val in value:
                 if val['email'] == email:
                     if val['forgotphrase'] == forgotphrase:
-                        response1 = col1.update({"_id": id1, "users.email": email}, {"$set": {"users.$.password": password}})
-                        response2 = users.update({"company": company, "users.email": email}, {"$set": {"users.$.password": password}}, multi=True)
+                        en_pwd = en_de_crypt(password, "encrypt")
+                        response1 = col1.update({"_id": id1, "users.email": email}, {"$set": {"users.$.password": en_pwd}})
+                        response2 = users.update({"company": company, "users.email": email}, {"$set": {"users.$.password": en_pwd}}, multi=True)
                         # print(response1, r)
                         return json.dumps({"status": '200', "message": "Password reset is successful"})
                     else:
@@ -690,7 +713,7 @@ def getAllSurvey(email, company):
         for val in value['users']:
             if val['activateSurvey'] == 'completed' and val['email'] == email:
                 output.append(value['survey'] + ' - Completed')
-            elif val['email'] == email:
+            elif val['email'] == email and val['isValid'] == "True":
                 output.append(value['survey'])
     return dumps(output)
 
@@ -702,3 +725,29 @@ def getnoofsurveys(survey,company):
       x=i['users']
       count=str(len(x))
     return count
+
+
+def en_de_crypt(plain_text, en_de):
+    #key = Fernet.generate_key()
+    #print(key)
+    #print(cf.key)
+    key=cf.key
+    f = Fernet(key.decode('utf-8'))
+    print(key)
+    print("In cypher methond")
+    print(plain_text)
+
+    if en_de == "encrypt":
+        text=plain_text.encode()
+        token = f.encrypt(text)
+        txt=token.decode('utf-8')
+        print("Encryted : {}".format(txt))
+        return txt
+
+    if en_de == "decrypt":
+        token = plain_text.encode()
+        uncipher_text = (f.decrypt(token))
+        dec_txt = bytes(uncipher_text).decode("utf-8")
+        print("Decrypted : {}".format(dec_txt))
+        return dec_txt
+

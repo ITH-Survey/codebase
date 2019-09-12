@@ -800,13 +800,15 @@ return true
               <CardHeader color="info">
                 {this.state.map.map( sector => ( ( this.state[sector].length !== 0 && this.state.tabState === sector) ?  
                 <Toolbar className={classes.tool}>
-                  <Typography variant="h4" color="inherit" align="left" className={classes.grow}>
+                  <Typography variant="h4" color="inherit" align="left" className={classes.lgrow}>
                   {this.state[sector + this.state[sector][this.state[sector + "ActiveStep"]] + "ref"]}
                   </Typography>
-                  <Typography variant="h4" color="inherit" align="center" className={classes.grow}>
+                  <Typography variant="h4" color="inherit" align="center" className={classes.cgrow}>
+                  {/* <Box textAlign="justify" m={1}> */}
                   {this.state[sector + this.state[sector][this.state[sector + "ActiveStep"]] + "ref_desc"]}
+                  {/* </Box> */}
                   </Typography>
-                  <Typography variant="h4" color="inherit" align="right" className={classes.grow}>
+                  <Typography variant="h4" color="inherit" align="right" className={classes.rgrow} >
                   {this.state[sector + this.state[sector][this.state[sector + "ActiveStep"]] + "nist"]}
                   </Typography> 
         </Toolbar> : null))}
